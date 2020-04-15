@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+
+  mongo:
+    image: mongo:4.0.17
+    restart: always
+    ports:
+      - "27018:27017"
+
+  log:
+    image: datalust/seq
+    restart: always
+    ports:
+      - "5342:80"
+    environment:
+      ACCEPT_EULA: "Y"
+
+  server:
+    image: diginet/agera-server
+    restart: always
+    ports:
+      - "4080:4080"
+      - "4443:4443"
+    environment:
+      EnvSeqLoggerApi: "http://log:5341"
+      EnvMongoDbSet: "mongo"
+    depends_on:
+      - mongo
+      - log

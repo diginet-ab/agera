@@ -1,0 +1,2 @@
+
+declare module 'structured-log'

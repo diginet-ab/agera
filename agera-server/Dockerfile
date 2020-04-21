@@ -1,27 +1,30 @@
-# Use the official image as a parent image.
-FROM node:latest
+FROM node:12-alpine AS BUILD_IMAGE
+RUN apk update && apk add python make g++ && rm -rf /var/cache/apk/*
 
-# Set the working directory.
 WORKDIR /usr/src/app
 
 ARG NPM_TOKEN
 ARG npmrc  
 RUN echo "$npmrc" > ~/.npmrc
 
-# Copy the file from your host to your current location.
 COPY package.json .
 
-# Run the command inside your image filesystem.
 RUN npm install
 RUN rm ~/.npmrc
 
-# Inform Docker that the container is listening on the specified port at runtime.
+FROM node:12-alpine
+
+WORKDIR /usr/src/app
+
+COPY --from=BUILD_IMAGE /usr/src/app/node_modules ./node_modules
+
+COPY package.json .
+
+EXPOSE 4080
 EXPOSE 4443
 
-# Run the specified command within the container.
 CMD [ "npm", "start" ]
 
-# Copy the rest of your app's source code from your host to your image filesystem.
 COPY *.pem ./
 COPY outDir ./outDir
 COPY web ./web

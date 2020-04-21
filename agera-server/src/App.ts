@@ -115,7 +115,7 @@ export class App {
 
     private async init() {
         if (os.hostname() !== "Tokyo")
-            MongoDbDatabase.mongoUrl = "mongodb://mongo:27017"
+            MongoDbDatabase.mongoUrl = fs.readFileSync('/etc/mongodb-connection-string/mongodb-connection-string').toString()
         this.mongoDbDatabases = new MongoDbDatabases()
         const databaseName = "agera"
         try {

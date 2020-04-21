@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agera-server
+spec:
+  selector:
+    matchLabels:
+      app: agera-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: agera-server
+    spec:
+      containers:
+      - name: agera-server
+        image: diginet/agera-server
+        imagePullPolicy: Always
+        volumeMounts:
+            - name: mongodb-connection-string
+              mountPath: /etc/mongodb-connection-string
+        env:
+        - name: "EnvSeqLoggerApi"
+          value: "http://seq-logger.default.svc.cluster.local:5341"
+      imagePullSecrets:
+      - name: docker-registry-diginet
+      volumes:
+        - name: mongodb-connection-string
+          secret:
+            secretName: mongodb-connection-string
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: agera-server
+spec:
+  clusterIP: "10.0.2.102"
+  ports:
+  - name: web-server
+    port: 4443
+  selector:
+    app: agera-server
